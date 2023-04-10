@@ -4,6 +4,7 @@
 
 import numpy as np
 
+import aglio
 import aglio.coordinate_transformations as yct
 
 
@@ -64,3 +65,10 @@ def test_geo_coords():
         assert np.allclose(r1, radius)
         assert np.allclose(lat1, lat)
         assert np.allclose(lon1, lon)
+
+
+def test_to_cartesian():
+    vs_file = "aglio/sample_data/wUS-SH-2010_percent.nc"
+    ds = aglio.open_dataset(vs_file)
+    _ = ds.aglio.interpolate_to_uniform_cartesian(["dvs"])
+    _ = ds.aglio.interpolate_to_uniform_cartesian(["dvs"], N=100)

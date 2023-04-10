@@ -183,8 +183,8 @@ def plotKmeansSensitivity(kMeansResults, cmapname="hot", N_best=None):
     maxClusters = max(kMeansResults["clusters"])
     Ntests = len(kMeansResults["clusters"])
     Ncols = int(np.ceil(maxClusters / 2))
-    Ncols = 5 if Ncols > 5 else Ncols
-    Nrows = np.ceil(Ntests / (Ncols * 1.0))
+    Ncols = int(5 if Ncols > 5 else Ncols)
+    Nrows = int(np.ceil(Ntests / (Ncols * 1.0)))
 
     X1 = kMeansResults["X1"]
     X2 = kMeansResults["X2"]
