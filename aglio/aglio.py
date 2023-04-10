@@ -14,9 +14,9 @@ from aglio.dependencies import dependency_checker
 from aglio.seismology.collections import ProfileCollection
 
 
-# profiler: sampling, binning, geopandas aggregate data
-@xr.register_dataset_accessor("profiler")
-class ProfilerAccessor:
+# aglio: sampling, binning, geopandas aggregate data
+@xr.register_dataset_accessor("aglio")
+class AglioAccessor:
     def __init__(self, xarray_obj):
         # __init__ can ONLY have xarray_obj here
         self._obj = xarray_obj

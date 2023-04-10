@@ -233,7 +233,7 @@ def test_with_profiler(tmpdir, ref1dmodeldepths, ref1dmodelvals):
     refCollection = ysds.ReferenceCollection([ref1, ref2])
 
     ds = create_fake_ds(fields=["dvs", "dvp"])
-    _ = ds.profiler.get_absolute(refCollection, field="dvs", ref_model_field="vs")
-    _ = ds.profiler.get_perturbation(refCollection, field="dvs", ref_model_field="vs")
-    _ = ds.profiler.get_absolute(refCollection, field="dvp", ref_model_field="vp")
-    _ = ds.profiler.get_perturbation(refCollection, field="dvp", ref_model_field="vp")
+    _ = ds.aglio.get_absolute(refCollection, field="dvs", ref_model_field="vs")
+    _ = ds.aglio.get_perturbation(refCollection, field="dvs", ref_model_field="vs")
+    _ = ds.aglio.get_absolute(refCollection, field="dvp", ref_model_field="vp")
+    _ = ds.aglio.get_perturbation(refCollection, field="dvp", ref_model_field="vp")

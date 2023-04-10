@@ -12,7 +12,7 @@ def refill(vals):
 
 filename = "IRIS/NWUS11-S_percent.nc"
 ds = aglio.open_dataset(filename)
-ds_yt = ds.profiler.interpolate_to_uniform_cartesian(
+ds_yt = ds.aglio.interpolate_to_uniform_cartesian(
     ["dvs"],
     N=50,
     max_dist=50,

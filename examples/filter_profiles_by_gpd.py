@@ -22,13 +22,11 @@ _, volcanic_bound_df, _ = echem.build_volcanic_extent(radius_deg=0.5)
 vs_file = "IRIS/wUS-SH-2010_percent.nc"
 ds = open_dataset(vs_file)
 
-surface_gpd = ds.profiler.surface_gpd
-volcanic_surface = ds.profiler.filter_surface_gpd(volcanic_bound_df, drop_null=True)
-volcanic_surface_pts = ds.profiler.filter_surface_gpd(
-    volcanic_bound_df, drop_inside=True
-)
+surface_gpd = ds.aglio.surface_gpd
+volcanic_surface = ds.aglio.filter_surface_gpd(volcanic_bound_df, drop_null=True)
+volcanic_surface_pts = ds.aglio.filter_surface_gpd(volcanic_bound_df, drop_inside=True)
 
-profs_v = ds.profiler.get_profiles(
+profs_v = ds.aglio.get_profiles(
     "dvs",
     df_gpds=[
         volcanic_bound_df,
@@ -36,7 +34,7 @@ profs_v = ds.profiler.get_profiles(
     drop_null=True,
 )
 
-profs_nv = ds.profiler.get_profiles(
+profs_nv = ds.aglio.get_profiles(
     "dvs",
     df_gpds=[
         volcanic_bound_df,

@@ -6,7 +6,7 @@ from aglio.seismology.collections import DepthSeriesKMeans
 
 vs_file = "IRIS/wUS-SH-2010_percent.nc"
 ds = aglio.open_dataset(vs_file)
-P = ds.profiler.get_profiles("dvs")
+P = ds.aglio.get_profiles("dvs")
 
 model = DepthSeriesKMeans(P, n_clusters=5)
 model.fit()
