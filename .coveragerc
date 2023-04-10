@@ -1,5 +1,5 @@
 [run]
-source = yt_aspect
+source = aglio
 
 [report]
 fail_under = 94
