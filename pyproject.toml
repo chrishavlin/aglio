@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aglio"
+version = "0.1.0"
+authors = [
+  { name="Chris Havlin", email="chris.havlin@gmail.com" },
+]
+description="Another Geodata Library for Input/Output (and more)"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies=['yt>4.1.0',
+ 
+     "netcdf4",
+    "h5py",
+    "scipy",
+    "geopandas>=0.11.1",
+    "shapely",
+    "xarray",
+    "sklearn",
+    "pygeos",
+    "tslearn",
+    "dask",
+    "yt_xarray",
+
+ ]
+
+
+[project.urls]
+"Homepage" = "https://github.com/chrishavlin/aglio"
+"Bug Tracker" = "https://github.com/chrishavlin/aglio/issues"
+
