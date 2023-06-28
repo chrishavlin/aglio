@@ -178,19 +178,6 @@ class AglioAccessor:
             self._cartesian_bbox = cbbox
         return self._cartesian_bbox
 
-    def convert_to_cartesian(self, latitude, longitude, depth, rescale):
-        radius = self.max_radius - depth
-
-        x, y, z = geosphere2cart(latitude, longitude, radius)
-        if rescale:
-            cart_bbox = self.cartesian_bbox
-            wids = np.abs(cart_bbox[:, 1] - cart_bbox[:, 0])
-            x = (x - cart_bbox[0, 0]) / wids[0]
-            y = (y - cart_bbox[1, 0]) / wids[1]
-            z = (z - cart_bbox[2, 0]) / wids[2]
-
-        return x, y, z
-
     def interpolate_to_uniform_cartesian(
         self,
         fields: List[str],
