@@ -16,24 +16,21 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies=['yt>4.1.0',
- 
-     "netcdf4",
-    "h5py",
-    "scipy",
-    "geopandas>=0.11.1",
-    "shapely",
-    "xarray",
-    "sklearn",
-    "pygeos",
-    "tslearn",
-    "dask",
-    "yt_xarray",
-
+dependencies=["yt>4.1.0",
+              "netcdf4",
+              "h5py",
+              "scipy",
+              "geopandas>=0.11.1",
+              "shapely",
+              "xarray",
+              "sklearn",
+              "pygeos",
+              "tslearn",
+              "dask",
+              "yt_xarray",
  ]
 
 
 [project.urls]
 "Homepage" = "https://github.com/chrishavlin/aglio"
 "Bug Tracker" = "https://github.com/chrishavlin/aglio/issues"
-
