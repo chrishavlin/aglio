@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Type, Union
 
 import numpy as np
 import xarray as xr
+from geopandas import GeoDataFrame
 from scipy import spatial
 
 import aglio.mapping as ygm
@@ -27,18 +28,18 @@ class AglioAccessor:
         self._has_neg_lons = np.any(self._obj.longitude < 0)
 
     def set_crs(self, new_crs):
+        """sets the coordinate reference system (crs) for the dataset"""
         self.crs = new_crs
 
     _surface_gpd = None
 
     @property
     def surface_gpd(self):
-
+        """a GeoDataFrame of the latitude, longitude points in the dataset"""
         if self._surface_gpd is None:
             lat, lg = self.latlon_grid
             lg = lg.ravel()
             lat = lat.ravel()
-
             df = _gpd_df_from_lat_lon(lat, lg, crs=self.crs)
             self._surface_gpd = df
         return self._surface_gpd
@@ -70,6 +71,21 @@ class AglioAccessor:
         )
 
     def get_coord(self, name: str, copy: bool = True):
+        """
+        get a coordinate array, accounting for coordinate aliases
+
+        Parameters
+        ----------
+        name: str
+            the coordinate name
+        copy: bool
+            (optional) return a copy of the array, default True
+
+        Returns
+        -------
+        ArrayLike
+            np.ndarray or a xr.DataArray of coordinate values
+        """
         name = self._validate_coord_name(name)
         coord = self._obj[name]
         if copy:
@@ -78,7 +94,34 @@ class AglioAccessor:
             coord = ygm.validate_lons(coord.values)
         return coord
 
-    def filter_surface_gpd(self, df_gpds, drop_null=False, drop_inside=False):
+    def filter_surface_gpd(
+        self,
+        df_gpds: Union[List[GeoDataFrame], GeoDataFrame],
+        drop_null=False,
+        drop_inside=False,
+    ):
+        """
+        filter the surface points of the dataset with GeoDataFrame
+
+        Parameters
+        ----------
+        df_gpds: GeoDataFrame or list of GeoDataFrames
+            a single GeoDataFrame or list of GeoDataFrames to use for filtering.
+        drop_null: bool
+            drop any null values from the resulting dataframe, effectively
+            dropping points falling outside of df_gpds
+        drop_inside: bool
+            drop any points that fall within df_gpds bounds
+
+        Note that drop_null and drop_inside are applied to all successive joins
+        if df_gpds is a list of GeoDataFrames.
+
+        Returns
+        -------
+        GeoDataFrame
+            a dataframe for the ds.aglio.surface_points filtered by df_gpds
+
+        """
         df = self.surface_gpd
         return ygm.successive_joins(
             df, df_gpds, drop_null=drop_null, drop_inside=drop_inside
@@ -87,12 +130,37 @@ class AglioAccessor:
     def get_profiles(
         self,
         field: str,
-        df_gpds: list = None,
+        df_gpds: Union[List[GeoDataFrame], GeoDataFrame] = None,
         vertical_mask=None,
-        drop_null=False,
-        drop_inside=False,
+        drop_null: bool = False,
+        drop_inside: bool = False,
     ) -> ProfileCollection:
+        """
+        extract a collection of 1d profiles
 
+        Parameters
+        ----------
+        field: str
+            the field to extract 1d profiles from
+        df_gpds: GeoDataFrame or list of GeoDataFrames
+            (optional) if present, will filter the surface points to return only
+            the profiles falling within (or without) df_gpds
+        vertical_mask: ArrayLike
+            a boolean mask to apply to along the vertical coordinate of 1d profiles
+        drop_null: bool
+            (optional) drop any null values from the resulting dataframe,
+            dropping points falling outside of df_gpds. Only used if df_gpds is
+            present.
+        drop_inside: bool
+            (optional) drop any points that fall within df_gpds bounds. Only used
+            if df_gpds is present.
+
+
+        Returns
+        -------
+        ProfileCollection
+
+        """
         var = getattr(self._obj, field)
         vert_name = _get_vertical_coord_name(var)
         vertical_sel = {}
@@ -209,10 +277,10 @@ class AglioAccessor:
             if True, will return a yt dataset (default False)
         rescale_coords: bool
             if True, will rescale the dimensions to 1. in smallest range,
-            maintaining aspect ration in other dimensions (default False)
+            maintaining aspect ratio in other dimensions (default False)
         apply_functions: dict
             a dictionary with fields as keys, pointing to a list of callable
-            functions that get applied to the the interpolated field. Functions
+            functions that get applied to the interpolated field. Functions
             must accept and return an ndarray.
         subselect_bbox: dict
             bounds of a subselection (optional).
@@ -377,9 +445,30 @@ class AglioAccessor:
         self,
         ref_model: Union[Type[sds.ReferenceModel1D], Type[sds.ReferenceCollection]],
         field: str,
-        ref_model_field: str = None,
-        perturbation_type: str = "percent",
-    ):
+        ref_model_field: Optional[str] = None,
+        perturbation_type: Optional[str] = "percent",
+    ) -> np.ndarray:
+        """
+        Calculate a perturbation from a 1D reference model
+
+        Parameters
+        ----------
+        ref_model:
+            the reference model, should be either a ReferenceModel1D or
+            ReferenceCollection instance
+        field: str
+            the data field to calculate a perturbation for
+        ref_model_field: str
+            (optional) the field in the reference model to use. defaults to the
+            value of the field parameter
+        perturbation_type: str
+            (optional) either "percent" or "absolute", defaults to "percent"
+
+        Returns
+        -------
+        np.ndarray
+            array of perturbation values
+        """
 
         return self._perturbation_calcs(
             ref_model,
@@ -396,7 +485,28 @@ class AglioAccessor:
         ref_model_field: str = None,
         perturbation_type: str = "percent",
     ):
+        """
+        Calculate an absolute value from a perturbation field for a 1D reference
+        model
 
+        Parameters
+        ----------
+        ref_model:
+            the reference model, should be either a ReferenceModel1D or
+            ReferenceCollection instance
+        field: str
+            the perturbation field to calculate absolute values from
+        ref_model_field: str
+            (optional) the field in the reference model to use. defaults to the
+            value of the field parameter
+        perturbation_type: str
+            (optional) either "percent" or "absolute", defaults to "percent"
+
+        Returns
+        -------
+        np.ndarray
+            array of absolute values
+        """
         return self._perturbation_calcs(
             ref_model,
             field,
@@ -468,6 +578,20 @@ coord_aliases["depth"] = ["depth"]
 
 
 def open_dataset(file, *args, **kwargs):
+    """
+    opens a dataset with xr.open_dataset after validating filename
+
+    Parameters
+    ----------
+    file:
+        the filename
+    *args, **kwargs: any additional arguments passed to xr.open_dataset
+
+    Returns
+    -------
+    open xarray dataset handle
+
+    """
     file = _dm.validate_file(file)
     return xr.open_dataset(file, *args, **kwargs)
 

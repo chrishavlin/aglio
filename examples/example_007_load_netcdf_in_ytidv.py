@@ -6,7 +6,7 @@ import aglio
 
 def refill(vals):
     vals[np.isnan(vals)] = 0.0
-    vals[vals > 0] = 0.0
+    vals[vals < 0] = 0.0
     return vals
 
 
@@ -14,7 +14,7 @@ filename = "IRIS/NWUS11-S_percent.nc"
 ds = aglio.open_dataset(filename)
 ds_yt = ds.aglio.interpolate_to_uniform_cartesian(
     ["dvs"],
-    N=50,
+    N=100,
     max_dist=50,
     return_yt=True,
     rescale_coords=True,
