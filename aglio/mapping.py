@@ -6,7 +6,7 @@ import pandas as pd
 from pandas import isnull as pd_isnull
 from shapely import affinity as aff
 from shapely.geometry import Point, Polygon
-from shapely.ops import cascaded_union
+from shapely.ops import unary_union
 
 from aglio.data_manager import data_manager
 
@@ -205,7 +205,7 @@ class BoundingPolies(object):
             )
 
         self.df_gp = gpd.GeoDataFrame(geometry=polies, crs=self.crs)
-        self.df_bound = gpd.GeoSeries(cascaded_union(polies))
+        self.df_bound = gpd.GeoSeries(unary_union(polies))
 
 
 def circ(c_lat_y, c_lon_x, radius_deg, max_arc_length_deg=0.01):

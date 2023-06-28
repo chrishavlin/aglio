@@ -12,15 +12,6 @@ class DependencyChecker:
                 self._has_cartopy = False
         return self._has_cartopy
 
-    def requires_cartopy(self, func):
-        def wrapper(*args, **kwargs):
-            if self.has_cartopy:
-                return func(*args, **kwargs)
-            else:
-                raise ImportError("This method requires cartopy.")
-
-        return wrapper
-
     _has_yt = None
 
     @property
@@ -37,7 +28,7 @@ class DependencyChecker:
     def requires(self, module_name, func):
         def wrapper(*args, **kwargs):
             att_name = f"has_{module_name}"
-            if getattr(self, att_name):
+            if getattr(self, att_name, None):
                 return func(*args, **kwargs)
             else:
                 raise ImportError(f"This method requires {module_name}.")

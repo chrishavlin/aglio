@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-import geopandas as gpd
 import pandas as pd
 from geopandas import GeoDataFrame
 
 from aglio.data_manager import data_manager as _dm
 from aglio.mapping import BoundingPolies, default_crs, validate_lons
+from aglio.point_data import _gpd_df_from_lat_lon
 
 
 def _apply_filter(df, filter: dict):
@@ -115,10 +115,8 @@ class CSVData(_GeoPoint):
         dims = "latitude", "longitude"
         bounds = {dim: [df[dim].min(), df[dim].max()] for dim in dims}
 
-        df = gpd.GeoDataFrame(
-            df,
-            geometry=gpd.points_from_xy(df["longitude"], df["latitude"]),
-            crs=self.crs,
+        df = _gpd_df_from_lat_lon(
+            df["latitude"], df["longitude"], crs=self.crs, data=df
         )
 
         return df, bounds
