@@ -6,6 +6,7 @@ from geopandas import GeoDataFrame, points_from_xy, sjoin
 from tslearn.clustering import TimeSeriesKMeans
 
 from aglio.mapping import BoundingPolies, default_crs
+from aglio.point_data import _gpd_df_from_lat_lon
 
 
 class ProfileCollection:
@@ -153,11 +154,8 @@ class DepthSeriesKMeans(TimeSeriesKMeans):
     @requires_fit
     def get_classified_coordinates(self):
         p = self.profile_collection
-        return GeoDataFrame(
-            {"labels": self.labels_, "latitude": p.y, "longitude": p.x},
-            geometry=points_from_xy(p.x, p.y),
-            crs=p.crs,
-        )
+        d = {"labels": self.labels_, "latitude": p.y, "longitude": p.x}
+        return _gpd_df_from_lat_lon(p.y, p.x, crs=p.crs, data=d)
 
     _bounding_polygons = None
 
@@ -186,7 +184,7 @@ class DepthSeriesKMeans(TimeSeriesKMeans):
     @requires_fit
     def classify_points(self, df_gpd):
         b_df = self.bounding_polygons
-        return sjoin(df_gpd, b_df, how="left", op="intersects")
+        return sjoin(df_gpd, b_df, how="left", predicate="intersects")
 
     @requires_fit
     def depth_stats(self):

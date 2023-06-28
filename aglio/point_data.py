@@ -1,11 +1,15 @@
 """
 class for processing point data
 """
+import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from numpy._typing import ArrayLike
 from shapely.geometry import MultiPoint
 from sklearn.cluster import KMeans
+
+from aglio.mapping import default_crs
 
 
 class pointData(object):
@@ -220,3 +224,21 @@ def calcKmeans(best_N, X1vals, X2vals):
     Xcluster = np.column_stack((X1, X2))
     clustering = KMeans(n_clusters=best_N, n_init=10).fit(Xcluster)
     return {"X1": X1, "X2": X2, "clustering": clustering}
+
+
+def _gpd_df_from_lat_lon(
+    lat_y: ArrayLike, lon_x: ArrayLike, crs=None, data=None
+) -> gpd.GeoDataFrame:
+    # returns a geopandas df filled with just latitude and longitude values
+    if crs is None:
+        crs = default_crs
+
+    if data is None:
+        print("no data, using lat and lon")
+        data = {"latitude": lat_y, "longitude": lon_x}
+
+    return gpd.GeoDataFrame(
+        data,
+        geometry=gpd.points_from_xy(lon_x, lat_y),
+        crs=crs,
+    )

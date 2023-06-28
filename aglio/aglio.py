@@ -1,7 +1,6 @@
 """Main module."""
 from typing import Dict, List, Optional, Type, Union
 
-import geopandas as gpd
 import numpy as np
 import xarray as xr
 from scipy import spatial
@@ -11,6 +10,7 @@ import aglio.seismology.datasets as sds
 from aglio.coordinate_transformations import geosphere2cart
 from aglio.data_manager import data_manager as _dm
 from aglio.dependencies import dependency_checker
+from aglio.point_data import _gpd_df_from_lat_lon
 from aglio.seismology.collections import ProfileCollection
 
 
@@ -38,11 +38,7 @@ class AglioAccessor:
             lg = lg.ravel()
             lat = lat.ravel()
 
-            df = gpd.GeoDataFrame(
-                {"latitude": lat, "longitude": lg},
-                geometry=gpd.points_from_xy(lg, lat),
-                crs=self.crs,
-            )
+            df = _gpd_df_from_lat_lon(lat, lg, crs=self.crs)
             self._surface_gpd = df
         return self._surface_gpd
 
@@ -62,14 +58,14 @@ class AglioAccessor:
     def _validate_coord_name(self, name: str) -> str:
         if name in self._obj.coords:
             return name
-        if name in coord_aliases:
-            for candidate in coord_aliases[name]:
-                if candidate in self._obj.coords:
-                    return candidate
+
+        for candidate, aliases in coord_aliases.items():
+            if name in aliases and candidate in self._obj.coords:
+                return candidate
         raise RuntimeError(
             f"Could not find {name} coordinate or equivalent in dataset. If it "
             f"exists by another name, add it to the aglio.coord_aliases"
-            f"dictionary."
+            f" dictionary."
         )
 
     def get_coord(self, name: str, copy: bool = True):

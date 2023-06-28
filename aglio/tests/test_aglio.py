@@ -10,6 +10,7 @@ import xarray as xr
 
 import aglio
 from aglio._testing import geo_df_for_testing, save_fake_ds
+from aglio.mapping import default_crs
 
 
 @pytest.fixture
@@ -145,3 +146,16 @@ def test_vertical_coord(on_disk_nc_file):
     assert np.all(depth == ds.depth)
     depth = aglio.aglio._get_vertical_coord(ds.Q)
     assert np.all(depth == ds.depth)
+
+
+def test_misc(on_disk_nc_file):
+
+    ds = aglio.open_dataset(on_disk_nc_file)
+    ds.aglio.set_crs("EPSG:32633")
+    assert ds.aglio.crs == "EPSG:32633"
+    ds.aglio.set_crs(default_crs)
+
+    with pytest.raises(RuntimeError, match="Could not find"):
+        ds.aglio._validate_coord_name("notaname")
+
+    assert ds.aglio._validate_coord_name("long") == "longitude"
