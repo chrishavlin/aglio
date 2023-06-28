@@ -1,11 +1,13 @@
-"""
-class for processing point data
-"""
+from typing import Iterable, Union
+
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from geopandas import GeoDataFrame
+from more_itertools import always_iterable
 from numpy._typing import ArrayLike
+from pandas import DataFrame
 from shapely.geometry import MultiPoint
 from sklearn.cluster import KMeans
 
@@ -14,15 +16,54 @@ from aglio.mapping import default_crs
 
 
 class pointData(object):
-    def __init__(self, df=None, xname="x", yname="y"):
+    """
+    class for processing point data and building grids from points
+
+    Parameters
+    ----------
+    df: DataFrame or GeoDataFrame
+        (optional) point data
+    xname: str
+        the name of the x coordinate (default 'x'). If supplying df, df should
+        contain xname as a column
+    yname: str
+        the name of the y coordinate (default 'y'). If supplying df, df should
+        contain yname as a column
+    """
+
+    def __init__(
+        self,
+        df: Union[DataFrame, GeoDataFrame] = None,
+        xname: str = "x",
+        yname: str = "y",
+    ):
         self.df = df
         self.xname = xname
         self.yname = yname
 
+        # gridded arrays
+        setattr(self, self.xname, None)
+        setattr(self, self.yname, None)
+        setattr(self, self.xname + "_c", None)
+        setattr(self, self.yname + "_c", None)
         return
 
-    def create_2d_grid(self, dx, dy, xmin, xmax, ymin, ymax):
-        """creates a 2d grid"""
+    def create_2d_grid(
+        self, dx: float, dy: float, xmin: float, xmax: float, ymin: float, ymax: float
+    ):
+        """
+        creates a uniform 2d grid
+
+        Parameters
+        ----------
+        dx, dy: float
+            the grid spacing in x and y
+        xmin, xmax: float
+            the min/max extent of the grid in x
+        ymin, ymax: float
+            the min/max extent of the grid in y
+        """
+
         Nx = int(np.ceil((xmax - xmin) / dx))
         Ny = int(np.ceil((ymax - ymin) / dy))
 
@@ -38,8 +79,23 @@ class pointData(object):
         setattr(self, self.xname + "_c", x_c)
         setattr(self, self.yname + "_c", y_c)
 
-    def assign_df_to_grid(self, binfields=None):
-        """finds stats within bins. binfield is the field to bin"""
+    def assign_df_to_grid(self, binfields: Union[str, Iterable[str]] = None) -> dict:
+        """
+        assigns the df to the current 2d grid using binning procedure.
+
+        Parameters
+        ----------
+        binfields: str or Iterable[str]
+            the fields from df to assign to the new grid. each field will
+            have the mean, median, min, max, std and count in each x-y cell.
+
+        Returns
+        -------
+        dict
+            the dictionary will have keys for each bin field arrays (mean, median,
+            min, max, std and count) and the grid cell edges and centers.
+
+        """
 
         if binfields is None:
             binfields = []
@@ -51,7 +107,7 @@ class pointData(object):
             # initialize
             gridded = {}
 
-            for binfield in binfields:
+            for binfield in always_iterable(binfields):
                 gridded[binfield] = {}
                 stats_list = ["mean", "median", "max", "min", "std", "count"]
                 Nx = xedges.size - 1
