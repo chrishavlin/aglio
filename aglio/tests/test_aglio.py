@@ -2,7 +2,6 @@
 
 """Tests for `aglio` package."""
 
-import os
 
 import geopandas as gpd
 import numpy as np
@@ -16,7 +15,7 @@ from aglio._testing import geo_df_for_testing, save_fake_ds
 @pytest.fixture
 def on_disk_nc_file(tmp_path):
     savedir = tmp_path / "data"
-    os.mkdir(savedir)
+    savedir.mkdir()
     fname = savedir / "test_nc.nc"
     save_fake_ds(fname, fields=["dvs", "Q"])
     return fname
@@ -50,9 +49,13 @@ def test_profile_extraction(on_disk_nc_file):
     gridsize = ds.coords["longitude"].size * ds.coords["latitude"].size
     assert profiles.profiles.shape[0] == gridsize
     assert profiles.profiles.shape[1] == ds.coords["depth"].size
+    assert profiles.x.size == gridsize
+    assert profiles.y.size == gridsize
 
     profiles = ds.aglio.get_profiles("Q", vertical_mask=range(0, 10))
     assert profiles.profiles.shape[1] == 10
+    assert profiles.x.size == gridsize
+    assert profiles.y.size == gridsize
 
     # get profiles inside, outside some bounds
     df = geo_df_for_testing()
@@ -69,6 +72,8 @@ def test_profile_extraction(on_disk_nc_file):
     assert n_out < gridsize
     assert n_in < gridsize
     assert n_in + n_out == gridsize
+    assert profiles_out.x.size == n_out
+    assert profiles_out.y.size == n_out
 
     profiles = ds.aglio.get_profiles(
         "Q", df_gpds=dfl, drop_null=True, vertical_mask=range(0, 10)
@@ -79,6 +84,8 @@ def test_profile_extraction(on_disk_nc_file):
     profiles.toggle_negative_lons(True)
     profiles.toggle_negative_lons(False)
     profiles.toggle_negative_lons()
+
+    _ = profiles.get_surface_union()
 
 
 def test_filter_surface_gpd(on_disk_nc_file):

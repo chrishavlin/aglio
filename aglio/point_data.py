@@ -144,7 +144,7 @@ def KmeansSensitivity(max_N, X1, X2, min_N=1):
     inert = []
 
     for nclust in Nclusters:
-        clustering = KMeans(n_clusters=nclust).fit(Xcluster)
+        clustering = KMeans(n_clusters=nclust, n_init=10).fit(Xcluster)
         inert.append(clustering.inertia_)
         results["bounds"][nclust] = {}
 
@@ -218,5 +218,5 @@ def calcKmeans(best_N, X1vals, X2vals):
     X1 = scaleFunc(X1vals)
     X2 = scaleFunc(X2vals)
     Xcluster = np.column_stack((X1, X2))
-    clustering = KMeans(n_clusters=best_N).fit(Xcluster)
+    clustering = KMeans(n_clusters=best_N, n_init=10).fit(Xcluster)
     return {"X1": X1, "X2": X2, "clustering": clustering}

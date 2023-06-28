@@ -122,20 +122,21 @@ class AglioAccessor:
             sel_dict["latitude"] = lats
             fvars = var.sel(sel_dict)
             fvars = fvars.sel(vertical_sel)
-            lon_vals = lons.values
-            lat_vals = lats.values
+            lon_vals = fvars.longitude.values
+            lat_vals = fvars.latitude.values
             depth_vals = getattr(fvars, vert_name).values
             fvars = fvars.transpose("index", vert_name).values
         else:
             fvars = var.sel(vertical_sel)
             depth_vals = fvars.depth.values
-            lon_vals = fvars.longitude.values
-            lat_vals = fvars.latitude.values
 
             # combine the lat/lon grid into 1d dimension then reorder to ensure
             # depth first and extract the 2d array
             fvars = fvars.stack(surface_pts=("latitude", "longitude"))
-            fvars = fvars.transpose("surface_pts", vert_name).values
+            fvars = fvars.transpose("surface_pts", vert_name)
+            lon_vals = fvars.longitude.values
+            lat_vals = fvars.latitude.values
+            fvars = fvars.values
 
         return ProfileCollection(
             fvars,
