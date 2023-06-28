@@ -1,4 +1,5 @@
 import os
+from typing import List, Optional, Union
 
 import geopandas as gpd
 import numpy as np
@@ -272,8 +273,35 @@ def filter_by_bounds(df, b_df, return_interior=True, crs=default_crs):
         return df_s
 
 
-def successive_joins(df_left, df_right_list, drop_null=False, drop_inside=False):
+def successive_joins(
+    df_left: gpd.GeoDataFrame,
+    df_right_list: Union[gpd.GeoDataFrame, List[gpd.GeoDataFrame]],
+    drop_null: Optional[Union[List[bool], bool]] = False,
+    drop_inside: Optional[Union[List[bool], bool]] = False,
+) -> gpd.GeoDataFrame:
+    """
+    a serial spatial join of a starting GeoDataFrame with one or more other
+    GeoDataFrames, optionally dropping values along the way.
 
+    Parameters
+    ----------
+    df_left: GeoDataFrame
+        the starting dataframe
+    df_gpds: GeoDataFrame or list of GeoDataFrames
+        a single GeoDataFrame or list of GeoDataFrames to join with df_left.
+    drop_null: bool or list of bools
+        (optional) drop any null values from the resulting dataframe, effectively
+        dropping points falling outside of df_gpds. If a list, length must be the
+        same as the number of dataframes supplied with df_gpds.
+    drop_inside: bool or list of bools
+        (optional) drop any points that fall within df_gpds bounds. If a list,
+        length must be the same as the number of dataframes supplied with df_gpds.
+
+    Returns
+    -------
+    GeoDataFrame
+
+    """
     if isinstance(df_right_list, list) is False:
         df_right_list = [df_right_list]
 
