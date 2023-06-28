@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from aglio._testing import create_fake_ds
+from aglio._utilities.testing import create_fake_ds
 from aglio.seismology import datasets as ysds
 
 

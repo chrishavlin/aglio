@@ -2,7 +2,7 @@ import os
 
 import xarray as xr
 
-from aglio._testing import create_fake_ds, save_fake_ds
+from aglio._utilities.testing import create_fake_ds, save_fake_ds
 
 
 def test_creak_fake_ds():

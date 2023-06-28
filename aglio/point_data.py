@@ -9,6 +9,7 @@ from numpy._typing import ArrayLike
 from shapely.geometry import MultiPoint
 from sklearn.cluster import KMeans
 
+from aglio._utilities.logger import aglio_log
 from aglio.mapping import default_crs
 
 
@@ -20,7 +21,7 @@ class pointData(object):
 
         return
 
-    def create2dGrid(self, dx, dy, xmin, xmax, ymin, ymax):
+    def create_2d_grid(self, dx, dy, xmin, xmax, ymin, ymax):
         """creates a 2d grid"""
         Nx = int(np.ceil((xmax - xmin) / dx))
         Ny = int(np.ceil((ymax - ymin) / dy))
@@ -37,7 +38,7 @@ class pointData(object):
         setattr(self, self.xname + "_c", x_c)
         setattr(self, self.yname + "_c", y_c)
 
-    def assignDfToGrid(self, binfields=None):
+    def assign_df_to_grid(self, binfields=None):
         """finds stats within bins. binfield is the field to bin"""
 
         if binfields is None:
@@ -78,7 +79,6 @@ class pointData(object):
                 df = df0[(df0[self.xname] >= x1) & (df0[self.xname] < x2)]
 
                 if len(df) > 0:
-
                     # cut and aggregate along y at this x
                     bins = pd.cut(
                         df[self.yname], yedges, include_lowest=True, right=True
@@ -86,14 +86,14 @@ class pointData(object):
 
                     for binfield in binfields:
                         aggd = df.groupby(bins)[binfield].agg(stats_list)
-
                         # store each stat
                         for stat in stats_list:
                             gridded[binfield][stat][i_x, :] = aggd[stat]
 
                 else:
-                    print("grid contains no data at this x1,x2,i_x:")
-                    print([x1, x2, i_x])
+                    aglio_log.info(
+                        f"grid contains no data at this x1,x2,i_x: {[x1, x2, i_x]}"
+                    )
 
             if "max" in gridded.keys() and "min" in gridded.keys():
                 gridded["span"] = gridded["max"] - gridded["min"]
@@ -103,7 +103,7 @@ class pointData(object):
             gridded[self.xname + "_c"] = (xedges[1:] + xedges[0:-1]) / 2.0
             gridded[self.yname + "_c"] = (yedges[1:] + yedges[0:-1]) / 2.0
         else:
-            print("grid required for assignDfToGrid")
+            aglio_log.info("grid required for assign_df_to_grid")
             gridded = None
 
         return gridded
@@ -234,7 +234,7 @@ def _gpd_df_from_lat_lon(
         crs = default_crs
 
     if data is None:
-        print("no data, using lat and lon")
+        aglio_log.info("no data, using supplied lat_y and lon_x.")
         data = {"latitude": lat_y, "longitude": lon_x}
 
     return gpd.GeoDataFrame(

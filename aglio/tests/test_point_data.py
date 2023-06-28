@@ -12,7 +12,7 @@ from aglio.point_data import (
 
 def test_point_data():
     p = pointData()
-    p.create2dGrid(0.1, 0.2, 0, 1, 2, 3)
+    p.create_2d_grid(0.1, 0.2, 0, 1, 2, 3)
 
     npts = 50
     df = pd.DataFrame(
@@ -23,8 +23,8 @@ def test_point_data():
         }
     )
     p = pointData(df=df)
-    p.create2dGrid(0.1, 0.2, 0, 1, 2, 3)
-    gridded = p.assignDfToGrid(
+    p.create_2d_grid(0.1, 0.2, 0, 1, 2, 3)
+    gridded = p.assign_df_to_grid(
         binfields=[
             "obs",
         ]

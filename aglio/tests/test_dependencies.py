@@ -1,6 +1,6 @@
 import pytest
 
-from aglio.dependencies import dependency_checker
+from aglio._utilities.dependencies import dependency_checker
 
 
 def test_attributes():
