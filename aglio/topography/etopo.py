@@ -10,7 +10,9 @@ class Etopo(object):
     https://www.ngdc.noaa.gov/mgg/global/global.html
     """
 
-    def __init__(self, filename, loadFile=True, use_negative_lons=False):
+    def __init__(
+        self, filename, loadFile: bool = True, use_negative_lons: bool = False
+    ):
 
         self.filename = _dm.validate_file(filename)
         self.filetype = filename.split(".")[-1]
@@ -22,13 +24,13 @@ class Etopo(object):
 
         if loadFile:
             if self.filetype == "asc":
-                self.loadGriddedAscii()
+                self._load_gridded_ascii()
             else:
-                print("filetype " + self.filetype + " not supported")
+                raise NotImplementedError(f"filetype {self.filetype} not supported")
 
         return
 
-    def loadGriddedAscii(self):
+    def _load_gridded_ascii(self):
         """loads the gridded etopo file"""
 
         # load the gridded data

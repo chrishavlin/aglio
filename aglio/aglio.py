@@ -8,6 +8,7 @@ from scipy import spatial
 import aglio.mapping as ygm
 import aglio.seismology.datasets as sds
 from aglio._utilities.dependencies import dependency_checker
+from aglio._utilities.logger import aglio_log
 from aglio.coordinate_transformations import geosphere2cart
 from aglio.data_manager import data_manager as _dm
 from aglio.point_data import _gpd_df_from_lat_lon
@@ -270,9 +271,9 @@ class AglioAccessor:
                 z_fi = (zdata[dmask] - full_cart_bbox[2][0]) / full_wids[2]
                 data = data[data != fillval]
                 xyz = np.column_stack((x_fi, y_fi, z_fi))
-                print("building kd tree for " + field)
+                aglio_log.info("building kd tree for " + field)
                 trees[field] = {"tree": spatial.cKDTree(xyz), "data": data}
-                print("    kd tree built")
+                aglio_log.info("... kd tree built")
 
             interpd[field] = np.full((Ngrid[0], Ngrid[1], Ngrid[2]), np.nan)
 
@@ -419,11 +420,10 @@ def _query_trees(
     # query the tree at each new grid point and weight nearest neighbors
     # by inverse distance. proceed in chunks.
     N_grid = len(xdata)
-    print("querying kdtree on interpolated grid")
     N_chunks = int(N_grid / interpChunk) + 1
-    print(f"breaking into {N_chunks} chunks")
+    aglio_log.info(f"querying kdtree on interpolated grid in {N_chunks} chunks")
     for i_chunk in range(0, N_chunks):
-        print(f"   processing chunk {i_chunk + 1} of {N_chunks}")
+        aglio_log.info(f"   processing chunk {i_chunk + 1} of {N_chunks}")
         i_0 = i_chunk * interpChunk
         i_1 = i_0 + interpChunk
         if i_1 > N_grid:
