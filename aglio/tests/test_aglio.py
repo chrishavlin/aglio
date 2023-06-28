@@ -9,7 +9,7 @@ import pytest
 import xarray as xr
 
 import aglio
-from aglio._testing import geo_df_for_testing, save_fake_ds
+from aglio._utilities.testing import geo_df_for_testing, save_fake_ds
 from aglio.mapping import default_crs
 
 

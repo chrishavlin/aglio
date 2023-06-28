@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 import aglio
-from aglio._testing import save_fake_ds
+from aglio._utilities.testing import save_fake_ds
 from aglio.point_data import _gpd_df_from_lat_lon
 from aglio.seismology.collections import DepthSeriesKMeans
 

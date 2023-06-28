@@ -7,9 +7,9 @@ from scipy import spatial
 
 import aglio.mapping as ygm
 import aglio.seismology.datasets as sds
+from aglio._utilities.dependencies import dependency_checker
 from aglio.coordinate_transformations import geosphere2cart
 from aglio.data_manager import data_manager as _dm
-from aglio.dependencies import dependency_checker
 from aglio.point_data import _gpd_df_from_lat_lon
 from aglio.seismology.collections import ProfileCollection
 
