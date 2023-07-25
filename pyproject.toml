@@ -16,8 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies=["yt>4.1.0",
-              "netcdf4",
+dependencies=["netcdf4",
               "h5py",
               "scipy",
               "geopandas>=0.11.1",
@@ -27,10 +26,31 @@ dependencies=["yt>4.1.0",
               "pygeos",
               "tslearn",
               "dask",
-              "yt_xarray",
  ]
 
 
 [project.urls]
 "Homepage" = "https://github.com/chrishavlin/aglio"
 "Bug Tracker" = "https://github.com/chrishavlin/aglio/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=3",
+    "pytest-cov",
+    "pre-commit",
+    "yt>4.1",
+]
+full = [
+    "yt>4.1",
+]
+extra = [
+    "yt>4.1",
+    "yt_xarray",
+    "yt_idv",
+    "cartopy",
+    ]
+lint = [
+    "black==22.8.0",
+    "isort==5.12.0",
+    "flake8==6.0.0"
+]

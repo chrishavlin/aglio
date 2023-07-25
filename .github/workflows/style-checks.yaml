@@ -13,7 +13,7 @@ jobs:
         python-version: 3.9
     - name: install
       id: install
-      run : pip install -r requirements_lint.txt
+      run : pip install -e .[lint]
 
     - name: check
       id: flake8
@@ -31,7 +31,7 @@ jobs:
         python-version: 3.9
     - name: install
       id: install
-      run : pip install -r requirements_lint.txt
+      run : pip install -e .[lint]
 
     - name: check
       id: black
@@ -49,7 +49,7 @@ jobs:
         python-version: 3.9
     - name: install
       id: install
-      run : pip install -r requirements_lint.txt
+      run : pip install -e .[lint]
 
     - name: check
       id: isort
