@@ -26,7 +26,6 @@ dependencies=["netcdf4",
               "shapely>=2.0",
               "xarray",
               "scikit-learn",
-              "tslearn",
               "dask",
  ]
 
@@ -44,6 +43,7 @@ dev = [
 ]
 full = [
     "yt>4.1",
+    "tslearn",
 ]
 extra = [
     "yt>4.1",

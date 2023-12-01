@@ -3,10 +3,14 @@ from typing import Optional, Type
 import numpy as np
 from dask import compute, delayed
 from geopandas import GeoDataFrame, points_from_xy, sjoin
-from tslearn.clustering import TimeSeriesKMeans
 
 from aglio.mapping import BoundingPolies, default_crs
 from aglio.point_data import _gpd_df_from_lat_lon
+
+try:
+    from tslearn.clustering import TimeSeriesKMeans
+except ImportError:
+    from aglio._utilities.dependencies import TimeSeriesKMeansDummy as TimeSeriesKMeans
 
 
 class ProfileCollection:
