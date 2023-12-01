@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aglio"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
   { name="Chris Havlin", email="chris.havlin@gmail.com" },
 ]
@@ -49,8 +49,3 @@ extra = [
     "yt_idv",
     "cartopy",
     ]
-lint = [
-    "black==22.8.0",
-    "isort==5.12.0",
-    "flake8==6.0.0"
-]
