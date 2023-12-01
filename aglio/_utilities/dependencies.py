@@ -25,6 +25,19 @@ class DependencyChecker:
                 self._has_yt = False
         return self._has_yt
 
+    _has_tslearn = None
+
+    @property
+    def has_tslearn(self):
+        if self._has_tslearn is None:
+            try:
+                import tslearn  # noqa: F401
+
+                self._has_tslearn = True
+            except ImportError:
+                self._has_tslearn = False
+        return self._has_tslearn
+
     def requires(self, module_name, func):
         def wrapper(*args, **kwargs):
             att_name = f"has_{module_name}"
@@ -37,3 +50,8 @@ class DependencyChecker:
 
 
 dependency_checker = DependencyChecker()
+
+
+class TimeSeriesKMeansDummy:
+    def __init__(self, *args, **kwargs):
+        raise ImportError("This functionality requires tslearn, please install.")
