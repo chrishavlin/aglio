@@ -39,9 +39,11 @@ dev = [
     "pytest-cov",
     "pre-commit",
     "yt>4.1",
+    "requests",
 ]
 full = [
     "yt>4.1",
+    "requests",
 ]
 extra = [
     "yt>4.1",

@@ -1,8 +1,12 @@
+import os
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Type
 
 import numpy as np
 import pandas as pd
+import xarray as xr
+from dask import compute, delayed
+from numpy.typing import ArrayLike
 from scipy.interpolate import interp1d
 
 from aglio.data_manager import data_manager as _dm
@@ -249,3 +253,254 @@ def load_1d_csv_ref_collection(
         ref_mods.append(ReferenceModel1D(vcol, d, vals))
 
     return ReferenceCollection(ref_mods)
+
+
+class _ByrnesSingleProfile:
+    def __init__(self, model_dir, fname):
+        self.model_dir = model_dir
+        self.fname = fname
+
+        split_fi = fname.split(".")
+        self.latitude = float(f"{split_fi[1]}.{split_fi[2]}")
+        self.longitude = float(f"{split_fi[3]}.{split_fi[4]}")
+
+        self.fullfile = os.path.join(model_dir, fname)
+        self.metadata_raw = self._read_metadata()
+        self.df = pd.read_csv(self.fullfile, skiprows=len(self.metadata_raw))
+
+        self.df["depth"] = np.cumsum(self.df["thickness"])
+        self.min_depth = self.df["depth"].min()
+        self.max_depth = self.df["depth"].max()
+
+        self.vsv_mask = np.isfinite(self.df.vsv)
+
+        self.moho_depth: float = None
+        self.nvg_depth: float = None
+        self.moho_index: int = None
+        self.nvg_index: int = None
+        self._find_moho_nvg()
+
+    def _read_metadata(self):
+
+        metadata_raw = []
+        with open(self.fullfile, "r") as f:
+            for line in f:
+                if "vsv," in line:
+                    break
+                metadata_raw.append(line)
+        return metadata_raw
+
+    def _find_moho_nvg(self):
+
+        read_next = False
+        found_it = False
+        for mrow in self.metadata_raw:
+            if read_next and found_it is False:
+                moho_nvg = mrow.split(",")
+                moho_index = int(moho_nvg[0])
+                nvg_index = int(moho_nvg[1])
+                found_it = True
+
+            if "Boundary" in mrow:
+                read_next = True
+
+        if found_it:
+            self.moho_depth = self.df.at[moho_index, "depth"]
+            self.nvg_depth = self.df.at[nvg_index, "depth"]
+            self.moho_index = moho_index
+            self.nvg_index = nvg_index
+
+    def interpolate_profile(self, new_depth, field="vsv"):
+
+        # find the non-nan points
+        new_vsv = np.full(new_depth.shape, np.nan)
+
+        min_z = self.df.depth[self.vsv_mask].min()
+        max_z = self.df.depth[self.vsv_mask].max()
+
+        vsv_mask = (new_depth >= min_z) & (new_depth <= max_z)
+
+        new_vsv[vsv_mask] = np.interp(
+            new_depth[vsv_mask],
+            self.df.depth[self.vsv_mask],
+            self.df[field][self.vsv_mask],
+        )
+
+        return new_vsv
+
+
+def _load_interpolate_file(model_dir, filename, z_new, field):
+    p = _ByrnesSingleProfile(model_dir, filename)
+    return p.interpolate_profile(z_new, field=field)
+
+
+class Byrnes2022:
+    def __init__(self, model_dir):
+        self.model_dir = model_dir
+        self.longitude = None
+        self.latitude = None
+        self.nfiles = 0
+        self.file_mapping_by_value = {}
+        self.file_mapping_by_index = {}
+        self.files = set()
+        self.file_base = None
+        self.file_ext = "csv"
+        self._initial_processing()
+        self.nlon = len(self.longitude)
+        self.nlat = len(self.latitude)
+
+    def _initial_processing(self):
+
+        # collect the filenames, assemble the lat/lon grid
+
+        lats = set()
+        lons = set()
+        lat_lons = set()  # temporary, for validation only
+
+        nfiles = 0
+        for fi in os.listdir(self.model_dir):
+            if fi.endswith(self.file_ext):
+
+                split_fi = fi.split(".")
+
+                if self.file_base is None:
+                    self.file_base = split_fi[0]
+
+                lat_str = f"{split_fi[1]}.{split_fi[2]}"
+                lon_str = f"{split_fi[3]}.{split_fi[4]}"
+                new_lat = float(lat_str)
+                new_lon = float(lon_str)
+
+                if lat_str not in self.file_mapping_by_value:
+                    self.file_mapping_by_value[lat_str] = {}
+                self.file_mapping_by_value[lat_str][lon_str] = fi
+
+                self.files.add(fi)
+
+                lat_lon = (new_lat, new_lon)
+                if lat_lon in lat_lons:
+                    raise ValueError(f"repeated lat, lon: {lat_lon}")
+                lats.add(new_lat)
+                lons.add(new_lon)
+                nfiles += 1
+
+        self.nfiles = nfiles
+        self.latitude = np.sort(np.array(list(lats)))
+        self.longitude = np.sort(np.array(list(lons)))
+
+        for ilat, lat in enumerate(self.latitude):
+            self.file_mapping_by_index[ilat] = {}
+            latval = "{0:.1f}".format(lat)
+            for ilon, lon in enumerate(self.longitude):
+                lonval = "{0:.1f}".format(lon)
+                fname = ".".join([self.file_base, latval, lonval, self.file_ext])
+                self.file_mapping_by_index[ilat][ilon] = fname
+
+    def find_index_from_lat_lon(self, lat, lon, method="nearest"):
+
+        if method == "nearest":
+            diff = np.abs(self.latitude - lat)
+            ilat = np.where(diff == diff.min())[0][0]
+
+            diff = np.abs(self.longitude - lon)
+            ilon = np.where(diff == diff.min())[0][0]
+        else:
+            ilat = np.where(self.latitude == lat)[0][0]
+            ilon = np.where(self.longitude == lon)[0][0]
+
+        return ilat, ilon
+
+    def find_fname_from_values(self, lat, lon, method="nearest"):
+        ilat, ilon = self.find_index_from_lat_lon(lat, lon, method=method)
+
+    def get_profile(
+        self,
+        latitude,
+        longitude,
+        index_or_value: str = "value",
+        method: str = "nearest",
+    ):
+        """
+        get a singl profile object for a given latitude or longitude
+
+        Parameters
+        ----------
+        latitude:
+            the latitude or latitude-index to extract
+        longitude:
+            the longitude or longitude-index to extract
+        index_or_value: str
+            if "value" (the default), latitude and longitude must be values, otherwise
+            they are assumed to be integer indices
+        method: str
+            if latitude and longitude are values, method may be "nearest" or "exact".
+            If nearest (the default), the profile returned will be that closest to the
+            provided latitude and longitude.
+
+        Return
+        ------
+        SingleProfile
+            a profile object for the given latitude and longitude.
+
+        """
+        if index_or_value == "value":
+            ilat, ilon = self.find_index_from_lat_lon(
+                latitude, longitude, method=method
+            )
+        else:
+            ilat, ilon = latitude, longitude
+
+        fname = self.file_mapping_by_index[ilat][ilon]
+
+        return _ByrnesSingleProfile(self.model_dir, fname)
+
+    def build_uniform_grid(self, z: ArrayLike, field: str):
+        """
+        builds a uniform grid from all profiles at the provided depth resolution.
+
+
+        Parameters
+        ----------
+        z : ArrayLike
+            1D array of the depths for the grid. Does not need to be uniform spacing.
+
+        field : str
+            the field to grid
+
+        Return
+        ------
+
+        xr.Dataset
+
+        an xarray dataset object with the gridded field.
+
+        """
+
+        z_new = np.asarray(z)
+
+        gridded = []
+
+        for ilat in self.file_mapping_by_index.keys():
+            these_lats = []
+            for ilon, fname in self.file_mapping_by_index[ilat].items():
+                v_ii = delayed(_load_interpolate_file)(
+                    self.model_dir, fname, z_new, field
+                )
+                these_lats.append(v_ii)
+
+            gridded.append(compute(*these_lats))
+
+        gridded = np.array(gridded)
+
+        fieldarray = xr.DataArray(
+            gridded,
+            coords={
+                "latitude": self.latitude.copy(),
+                "longitude": self.longitude.copy(),
+                "depth": z_new,
+            },
+            dims=("latitude", "longitude", "depth"),
+        )
+
+        ds = xr.Dataset(data_vars={field: fieldarray})
+        return ds
