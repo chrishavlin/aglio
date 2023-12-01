@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aglio"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
   { name="Chris Havlin", email="chris.havlin@gmail.com" },
 ]
@@ -13,6 +13,9 @@ readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
@@ -20,10 +23,9 @@ dependencies=["netcdf4",
               "h5py",
               "scipy",
               "geopandas>=0.11.1",
-              "shapely",
+              "shapely>=2.0",
               "xarray",
               "scikit-learn",
-              "pygeos",
               "tslearn",
               "dask",
  ]
@@ -49,8 +51,3 @@ extra = [
     "yt_idv",
     "cartopy",
     ]
-lint = [
-    "black==22.8.0",
-    "isort==5.12.0",
-    "flake8==6.0.0"
-]
