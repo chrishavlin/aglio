@@ -173,6 +173,15 @@ def build_full_uniform_grid(
     Returns
     -------
     tuple of ND arrays corresponding to the meshed variation in each dimension
+
+    Examples
+    --------
+
+    >>> from aglio.coordinate_transformations import build_full_uniform_grid
+    >>> import numpy as np
+    >>> # build a spherical coordinate grid
+    >>> r, theta, phi = build_full_uniform_grid([0., 0., 0.,], [1., np.pi, 2*np.pi], [10, 12, 14])
+    >>> r.shape # (10, 12, 14)
     """
 
     dims_1d = []
