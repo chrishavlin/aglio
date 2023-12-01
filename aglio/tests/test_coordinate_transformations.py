@@ -3,6 +3,7 @@
 """Tests for `aglio` package."""
 
 import numpy as np
+import pytest
 
 import aglio
 import aglio.coordinate_transformations as yct
@@ -72,3 +73,18 @@ def test_to_cartesian():
     ds = aglio.open_dataset(vs_file)
     _ = ds.aglio.interpolate_to_uniform_cartesian(["dvs"])
     _ = ds.aglio.interpolate_to_uniform_cartesian(["dvs"], N=100)
+
+
+@pytest.mark.parametrize("nd", [2, 3])
+def test_build_full_uniform_grid(nd):
+
+    left_edge = [
+        0.0,
+    ] * nd
+    right_edge = [le + 1.0 for le in left_edge]
+    shp = (3,) * nd
+    coords = yct.build_full_uniform_grid(left_edge, right_edge, shp)
+    assert len(coords) == nd
+    assert coords[0].shape == shp
+    for c in coords:
+        assert c.shape == coords[0].shape

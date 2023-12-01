@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 import numpy as np
 
 from aglio.typing import all_numbers
@@ -114,7 +116,7 @@ def geosphere2cart(
     lat: all_numbers, lon: all_numbers, radius: all_numbers
 ) -> all_numbers:
     """
-    transformation from latitude, longitude to to cartesian
+    transformation from latitude, longitude to cartesian
 
     Parameters
     ----------
@@ -141,3 +143,44 @@ def geosphere2cart(
     theta = lon * np.pi / 180.0
 
     return sphere2cart(phi, theta, radius)
+
+
+def build_full_uniform_grid(
+    left_edge: List[float],
+    right_edge: List[float],
+    grid_shape: List[int],
+    indexing: Optional[str] = "ij",
+    copy: Optional[bool] = None,
+    sparse: Optional[bool] = None,
+):
+
+    """
+    build a ND grid in memory via np.meshgrid by specifying the bounds and size
+    of each dimension.
+
+    Parameters
+    ----------
+    left_edge : List[float]
+        the minimum values for each dimension
+    right_edge : List[float]
+        the maximum values for each dimension
+    grid_shape : List[int]
+        the number of grid points in each dimension
+
+    remaining parameters (indexing, copy, sparse) get passed to `np.meshgrid`.
+    Note that the default `indexing` here is 'ij' rather than 'xy'.
+
+    Returns
+    -------
+    tuple of ND arrays corresponding to the meshed variation in each dimension
+    """
+
+    dims_1d = []
+    ndim = len(grid_shape)
+    for idim in range(ndim):
+        le = left_edge[idim]
+        re = right_edge[idim]
+        n = grid_shape[idim]
+        dims_1d.append(np.linspace(le, re, n))
+
+    return np.meshgrid(*dims_1d, indexing=indexing, copy=copy, sparse=sparse)
