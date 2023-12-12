@@ -44,13 +44,13 @@ class ReferenceModel(ABC):
         pass
 
     def _validate_array(self, vals: np.typing.ArrayLike) -> np.ndarray:
-        if type(vals) == np.ndarray:
+        if isinstance(vals, np.ndarray):
             return vals
         return np.asarray(vals)
 
 
 def _sanitize_ndarray(input_array: all_numbers) -> all_numbers:
-    if type(input_array) == np.ndarray:
+    if isinstance(input_array, np.ndarray):
         if input_array.shape == ():
             return input_array.item()
     return input_array
