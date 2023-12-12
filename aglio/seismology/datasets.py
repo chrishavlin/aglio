@@ -99,7 +99,6 @@ class ReferenceModel1D(ReferenceModel):
     @property
     def interpolate_func(self):
         if self._interpolate_func is None:
-
             depth = self.depth
             vals = self.vals
 
@@ -128,7 +127,6 @@ class ReferenceModel1D(ReferenceModel):
         method: str = "interp",
         perturbation_type: str = "percent",
     ) -> np.ndarray:
-
         ref_vals = self.evaluate(depths, method=method)
         pert = _calculate_perturbation(ref_vals, abs_vals, perturbation_type)
         return _sanitize_ndarray(pert)
@@ -140,7 +138,6 @@ class ReferenceModel1D(ReferenceModel):
         method: str = "interp",
         perturbation_type: str = "percent",
     ) -> np.ndarray:
-
         ref_vals = self.evaluate(depths, method=method)
         abs_vals = _calculate_absolute(ref_vals, pert_vals, perturbation_type)
         return _sanitize_ndarray(abs_vals)

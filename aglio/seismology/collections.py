@@ -27,7 +27,6 @@ class ProfileCollection:
     @property
     def surface_df(self):
         if self._surface_df is None:
-
             df = GeoDataFrame(
                 {"longitude": self.x, "latitude": self.y},
                 geometry=points_from_xy(self.x, self.y),
@@ -95,7 +94,6 @@ def requires_fit(func):
 
 
 class DepthSeriesKMeans(TimeSeriesKMeans):
-
     depth_range = None
     depth_mask = None
     depth = None
@@ -140,7 +138,6 @@ class DepthSeriesKMeans(TimeSeriesKMeans):
         self.radius_deg = radius_deg
 
     def _set_depth_attrs(self, depth_min, depth_max):
-
         d = self.profile_collection.depth
         if depth_min is None:
             depth_min = d.min()
@@ -192,7 +189,6 @@ class DepthSeriesKMeans(TimeSeriesKMeans):
 
     @requires_fit
     def depth_stats(self):
-
         cstats = {}
         for lab in range(self.n_clusters):
             label_mask = self.labels_ == lab

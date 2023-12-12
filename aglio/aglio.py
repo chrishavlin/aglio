@@ -229,7 +229,6 @@ class AglioAccessor:
         return self._cartesian_coords
 
     def _get_lat_lon_depth_grid(self):
-
         vert_coord = _get_vertical_coord_name(self._obj)
         depth_ = self.get_coord(vert_coord)
         lat_ = self.get_coord("latitude")
@@ -417,7 +416,6 @@ class AglioAccessor:
         perturbation_type: str = "percent",
         to_perturbation: bool = True,
     ):
-
         field_data = getattr(self._obj, field)
         depth, lat, lon = self._get_lat_lon_depth_grid()
 

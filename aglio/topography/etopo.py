@@ -13,7 +13,6 @@ class Etopo(object):
     def __init__(
         self, filename, loadFile: bool = True, use_negative_lons: bool = False
     ):
-
         self.filename = _dm.validate_file(filename)
         self.filetype = filename.split(".")[-1]
         self.topo = None

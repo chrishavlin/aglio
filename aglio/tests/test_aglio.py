@@ -115,7 +115,6 @@ def test_filter_surface_gpd(on_disk_nc_file):
 
 
 def test_interpolate_to_cartesian(on_disk_nc_file):
-
     ds = aglio.open_dataset(on_disk_nc_file)
     x, y, z, d = ds.aglio.interpolate_to_uniform_cartesian(
         ["dvs"],
@@ -149,7 +148,6 @@ def test_vertical_coord(on_disk_nc_file):
 
 
 def test_misc(on_disk_nc_file):
-
     ds = aglio.open_dataset(on_disk_nc_file)
     ds.aglio.set_crs("EPSG:32633")
     assert ds.aglio.crs == "EPSG:32633"

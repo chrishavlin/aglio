@@ -27,7 +27,6 @@ def yield_coords():
 
 
 def test_quadrant_id():
-
     assert yct.get_xy_quad(0.0, 0.0) == np.array(1)
     assert yct.get_xy_quad(1.0, 0.0) == np.array(1)
     assert yct.get_xy_quad(1.0, 0.25) == np.array(1)
@@ -41,7 +40,6 @@ def test_quadrant_id():
 
 
 def test_coord_roundtrip():
-
     for phi, theta, radius in yield_coords():
         x, y, z = yct.sphere2cart(phi, theta, radius)
         r, phi1, theta1 = yct.cart2sphere(x, y, z, geo=False, deg=False)
@@ -51,7 +49,6 @@ def test_coord_roundtrip():
 
 
 def test_geo_coords():
-
     for phi, theta, radius in yield_coords():
         lat = 90.0 - phi * 180.0 / np.pi
         lon = theta * 180 / np.pi
@@ -77,7 +74,6 @@ def test_to_cartesian():
 
 @pytest.mark.parametrize("nd", [2, 3])
 def test_build_full_uniform_grid(nd):
-
     left_edge = [
         0.0,
     ] * nd

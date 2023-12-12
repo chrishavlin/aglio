@@ -153,7 +153,6 @@ def build_full_uniform_grid(
     copy: Optional[bool] = None,
     sparse: Optional[bool] = None,
 ):
-
     """
     build a ND grid in memory via np.meshgrid by specifying the bounds and size
     of each dimension.

@@ -128,7 +128,6 @@ class pointData(object):
             # need stats beyond mean, hist2d won't work. Loop over 1 spatial dim,
             # use pandas cut
             for i_x in range(0, Nx):
-
                 # find all values within this x
                 x1 = xedges[i_x]
                 x2 = xedges[i_x + 1]

@@ -50,7 +50,6 @@ class DataManager:
         return None
 
     def check_location(self, filename: str, location: str):
-
         if location == "fullpath":
             if os.path.isfile(os.path.abspath(filename)):
                 return os.path.abspath(filename)

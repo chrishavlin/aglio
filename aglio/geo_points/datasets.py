@@ -30,7 +30,6 @@ class _GeoPoint(ABC):
 
 
 class CSVData(_GeoPoint):
-
     file_sep = ","
 
     def __init__(
@@ -95,7 +94,6 @@ class CSVData(_GeoPoint):
         self.df, self.bounds = self.load_data()
 
     def load_data(self, filters: list = None, **kwargs):
-
         if filters is None:
             filters = []
 
@@ -152,7 +150,6 @@ class EarthChem(CSVData):
         lonname: str = "lon",
         latname: str = "lat",
     ):
-
         if drop_duplicates_by is None:
             drop_duplicates_by = ["latitude", "longitude", "age"]
 

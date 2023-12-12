@@ -7,7 +7,6 @@ from aglio.mapping import build_bounding_df
 
 
 def create_fake_ds(fields: List[str] = None):
-
     if fields is None:
         fields = ["dvs"]
 
