@@ -70,9 +70,8 @@ class PolygonFile(OnDiskGeometry):
         description: str = None,
         smooth_factor: int = 1,
         affine_scale: int = 1,
-        **kwargs
+        **kwargs,
     ):
-
         super().__init__(
             filename,
             crs=crs,
@@ -92,7 +91,6 @@ class PolygonFile(OnDiskGeometry):
         self.bounding_polygon = self.build_gpd_df(smooth_factor, affine_scale)
 
     def build_gpd_df(self, smooth_factor: float = 1, affine_scale: float = 1):
-
         poly = Polygon(
             [[p[0], p[1]] for p in zip(self.df[self.lonname], self.df[self.latname])]
         )
@@ -112,7 +110,6 @@ class PolygonFile(OnDiskGeometry):
 
 
 def build_bounding_df(latitudes, longitudes, crs=None, description="bounding_poly"):
-
     if crs is None:
         crs = default_crs
 
@@ -259,11 +256,11 @@ def filter_by_bounds(df, b_df, return_interior=True, crs=default_crs):
     """
 
     # create geodataframe of raw points
-    if type(df) == pd.DataFrame:
+    if isinstance(df, gpd.GeoDataFrame):
+        df_gpd = df
+    elif isinstance(df, pd.DataFrame):
         geo = [Point([p[0], p[1]]) for p in zip(df["lon"], df["lat"])]
         df_gpd = gpd.GeoDataFrame(df, crs=crs, geometry=geo)
-    elif type(df) == gpd.GeoDataFrame:
-        df_gpd = df
 
     # spatial join of the two geodataframes
     df_s = gpd.sjoin(b_df, df_gpd, how="right", predicate="intersects")
@@ -307,14 +304,13 @@ def successive_joins(
 
     df = df_left.copy()
 
-    if type(drop_null) is bool:
+    if isinstance(drop_null, bool):
         drop_null = [drop_null] * len(df_right_list)
 
-    if type(drop_inside) is bool:
+    if isinstance(drop_inside, bool):
         drop_inside = [drop_inside] * len(df_right_list)
 
     for df_r, dnull, dins in zip(df_right_list, drop_null, drop_inside):
-
         if dnull and dins:
             raise ValueError("Only one of drop_na and drop_inside can be True")
 

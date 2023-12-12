@@ -3,7 +3,6 @@ from aglio.mapping import build_bounding_df
 
 
 def test_echem():
-
     file = "aglio/sample_data/earthchem_download_90561.csv"
 
     # load everything

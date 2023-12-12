@@ -229,7 +229,6 @@ class AglioAccessor:
         return self._cartesian_coords
 
     def _get_lat_lon_depth_grid(self):
-
         vert_coord = _get_vertical_coord_name(self._obj)
         depth_ = self.get_coord(vert_coord)
         lat_ = self.get_coord("latitude")
@@ -417,14 +416,13 @@ class AglioAccessor:
         perturbation_type: str = "percent",
         to_perturbation: bool = True,
     ):
-
         field_data = getattr(self._obj, field)
         depth, lat, lon = self._get_lat_lon_depth_grid()
 
-        if type(ref_model) == sds.ReferenceModel1D:
+        if isinstance(ref_model, sds.ReferenceModel1D):
             # evaluate interpolated reference model at depths
             ref_data = ref_model.evaluate(depth)
-        elif type(ref_model) == sds.ReferenceCollection:
+        elif isinstance(ref_model, sds.ReferenceCollection):
             model = getattr(ref_model, ref_model_field)
             ref_data = model.evaluate(depth)
 

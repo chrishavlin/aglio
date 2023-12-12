@@ -33,7 +33,6 @@ def test_point_data():
 
 
 def test_Kmeans_sensitivity():
-
     a = np.random.random((100,))
     b = np.random.random((100,)) + a * 10
     b = b / b.max()

@@ -138,7 +138,6 @@ def refmodel_tests_1d_reversed(ref_model: ysds.ReferenceModel1D):
 
 
 def test_1d_eval(tmpdir, ref1dmodeldepths, ref1dmodelvals):
-
     # check direct instantiation
     ref_model = ysds.ReferenceModel1D("refmodel.csv", ref1dmodeldepths, ref1dmodelvals)
     refmodel_tests_1d(ref_model)
@@ -199,7 +198,6 @@ def test_1d_pert_abs(ref1dmodeldepths, ref1dmodelvals):
 
 
 def test_ref_1d_collection(tmpdir, ref1dmodeldepths, ref1dmodelvals):
-
     ref1 = ysds.ReferenceModel1D("vs", ref1dmodeldepths, ref1dmodelvals)
     ref2 = ysds.ReferenceModel1D("vp", ref1dmodeldepths, ref1dmodelvals * 2.0)
     refCollection = ysds.ReferenceCollection([ref1, ref2])
