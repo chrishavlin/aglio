@@ -1,4 +1,5 @@
 """Main module."""
+
 from typing import Dict, List, Optional, Type, Union
 
 import numpy as np
