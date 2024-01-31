@@ -121,9 +121,9 @@ def geosphere2cart(
     Parameters
     ----------
     lat : ndarray or scalar float/int
-        latitude, -180 to 180 or 0 to 360
+        latitude, -90 to 90
     lon : ndarray or scalar float/int
-        longitude, -90 to 90
+        longitude, -180 to 180 or 0 to 360
     radius : ndarray or scalar float/int
         radius in any units
 
