@@ -540,7 +540,7 @@ def _query_trees(
         pts = np.column_stack((xdata[i_0:i_1], ydata[i_0:i_1], zdata[i_0:i_1]))
         indxs = np.array(range(i_0, i_1))  # the linear indeces of this chunk
         for fi in fields:
-            (dists, tree_indxs) = trees[fi]["tree"].query(
+            dists, tree_indxs = trees[fi]["tree"].query(
                 pts, k=8, distance_upper_bound=max_dist
             )
 
